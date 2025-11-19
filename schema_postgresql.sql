@@ -153,5 +153,5 @@ ORDER BY l.fecha_caducidad;
 
 -- Insertar usuario administrador por defecto (password: admin123)
 INSERT INTO usuarios (username, password_hash, nombre_completo, email, rol)
-VALUES ('admin', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5NU7LAodZG1nS', 'Administrador', 'admin@pharmaflow.com', 'gerente');
+VALUES ('admin', '$2b$12$aOfCg/aARMj7P1yFWYuMk.qfr.TEwFlX9E4fWbebhC0/SJ8d2sr5u', 'Administrador', 'admin@pharmaflow.com', 'gerente');
 

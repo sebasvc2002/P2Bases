@@ -1,0 +1,39 @@
+# PharmaFlow Solutions - cPanel/Passenger Configuration
+
+# Enable Passenger
+PassengerEnabled On
+PassengerAppRoot /home/USUARIO/pharmaflow
+
+# Python version (ajustar según la versión disponible en cPanel)
+PassengerPython /home/USUARIO/virtualenv/pharmaflow/3.9/bin/python3
+
+# Startup file
+PassengerStartupFile passenger_wsgi.py
+
+# Application environment
+PassengerAppEnv production
+
+# Restart the application
+PassengerRestartDir /tmp
+
+# Logging
+PassengerLogLevel 3
+
+# Error documents
+ErrorDocument 404 /404.html
+ErrorDocument 500 /500.html
+
+# Protect sensitive files
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "(\.py|\.pyc|\.yml|\.yaml|\.env)$">
+    Require all denied
+</FilesMatch>
+
+# Allow access to static files
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$">
+    Require all granted
+</FilesMatch>
+
