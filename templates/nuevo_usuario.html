@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Usuario - PharmaFlow Solutions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-person-plus"></i> Nuevo Usuario</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('nuevo_usuario') }}">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Nombre de Usuario *</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                            <small class="text-muted">Debe ser único en el sistema</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Contraseña *</label>
+                            <input type="password" class="form-control" id="password" name="password"
+                                   minlength="6" required>
+                            <small class="text-muted">Mínimo 6 caracteres</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="nombre_completo" class="form-label">Nombre Completo *</label>
+                            <input type="text" class="form-control" id="nombre_completo" name="nombre_completo" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="rol" class="form-label">Rol *</label>
+                            <select class="form-select" id="rol" name="rol" required>
+                                <option value="">Seleccione un rol...</option>
+                                <option value="gerente">Gerente (Acceso Total)</option>
+                                <option value="farmaceutico">Farmacéutico (Ventas y Modificar Lotes)</option>
+                                <option value="investigador">Investigador (Solo Consulta)</option>
+                            </select>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <strong>Nota:</strong> Los roles determinan los permisos del usuario en el sistema.
+                            Asegúrese de seleccionar el rol apropiado según las responsabilidades del usuario.
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('usuarios') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Crear Usuario
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Ensayos Clínicos - PharmaFlow Solutions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-clipboard-data"></i> Ensayos Clínicos</h1>
+        {% if session.rol in ['gerente', 'investigador'] %}
+        <a href="{{ url_for('nuevo_ensayo') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nuevo Ensayo
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Filtrar por Fase</label>
+                    <select class="form-select" name="fase" onchange="this.form.submit()">
+                        <option value="">Todas las fases</option>
+                        <option value="Fase I" {% if request.args.get('fase') == 'Fase I' %}selected{% endif %}>Fase I</option>
+                        <option value="Fase II" {% if request.args.get('fase') == 'Fase II' %}selected{% endif %}>Fase II</option>
+                        <option value="Fase III" {% if request.args.get('fase') == 'Fase III' %}selected{% endif %}>Fase III</option>
+                        <option value="Fase IV" {% if request.args.get('fase') == 'Fase IV' %}selected{% endif %}>Fase IV</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Filtrar por Estado</label>
+                    <select class="form-select" name="estado" onchange="this.form.submit()">
+                        <option value="">Todos los estados</option>
+                        <option value="en_progreso" {% if request.args.get('estado') == 'en_progreso' %}selected{% endif %}>En Progreso</option>
+                        <option value="completado" {% if request.args.get('estado') == 'completado' %}selected{% endif %}>Completado</option>
+                        <option value="suspendido" {% if request.args.get('estado') == 'suspendido' %}selected{% endif %}>Suspendido</option>
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <a href="{{ url_for('ensayos_clinicos') }}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Limpiar Filtros
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for ensayo in ensayos %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header {% if ensayo.estado == 'completado' %}bg-success{% elif ensayo.estado == 'suspendido' %}bg-danger{% else %}bg-primary{% endif %} text-white">
+                    <h5 class="mb-0">{{ ensayo.titulo }}</h5>
+                    <small>{{ ensayo.fase }}</small>
+                </div>
+                <div class="card-body">
+                    <p><strong>Medicamento:</strong>
+                        {% if ensayo.medicamento_id in medicamentos %}
+                            {{ medicamentos[ensayo.medicamento_id] }}
+                        {% else %}
+                            ID: {{ ensayo.medicamento_id }}
+                        {% endif %}
+                    </p>
+                    <p><strong>Investigador:</strong> {{ ensayo.investigador_principal }}</p>
+                    <p><strong>Fecha Inicio:</strong> {{ ensayo.fecha_inicio.strftime('%Y-%m-%d') }}</p>
+                    <p><strong>Estado:</strong>
+                        {% if ensayo.estado == 'en_progreso' %}
+                            <span class="badge bg-primary">En Progreso</span>
+                        {% elif ensayo.estado == 'completado' %}
+                            <span class="badge bg-success">Completado</span>
+                        {% else %}
+                            <span class="badge bg-danger">Suspendido</span>
+                        {% endif %}
+                    </p>
+
+                    {% if ensayo.participantes %}
+                    <p><small class="text-muted">
+                        Participantes: {{ ensayo.participantes.get('completados', 0) }}/{{ ensayo.participantes.get('total', 0) }}
+                    </small></p>
+                    {% endif %}
+
+                    {% if ensayo.efectos_secundarios %}
+                    <p><small class="text-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        {{ ensayo.efectos_secundarios|length }} efecto(s) secundario(s) reportado(s)
+                    </small></p>
+                    {% endif %}
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('ver_ensayo', ensayo_id=ensayo._id) }}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-eye"></i> Ver Detalles
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> No hay ensayos clínicos registrados.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

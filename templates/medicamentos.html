@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Medicamentos - PharmaFlow Solutions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-prescription2"></i> Medicamentos</h1>
+        {% if session.rol in ['gerente', 'farmaceutico'] %}
+        <a href="{{ url_for('nuevo_medicamento') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nuevo Medicamento
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        {% for medicamento in medicamentos %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">{{ medicamento.nombre }}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ medicamento.descripcion or 'Sin descripción' }}</p>
+                    <hr>
+                    <p><strong>Principio Activo:</strong> {{ medicamento.principio_activo }}</p>
+                    <p><strong>Categoría:</strong>
+                        <span class="badge bg-info">{{ medicamento.categoria or 'General' }}</span>
+                    </p>
+                    <p>
+                        {% if medicamento.requiere_receta %}
+                        <span class="badge bg-warning"><i class="bi bi-file-medical"></i> Requiere Receta</span>
+                        {% else %}
+                        <span class="badge bg-success"><i class="bi bi-check-circle"></i> Venta Libre</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> No hay medicamentos registrados en el sistema.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

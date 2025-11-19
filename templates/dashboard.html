@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - PharmaFlow Solutions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">
+        <i class="bi bi-speedometer2"></i> Dashboard
+    </h1>
+
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Medicamentos</h6>
+                            <h2>{{ stats.total_medicamentos }}</h2>
+                        </div>
+                        <i class="bi bi-prescription2" style="font-size: 3rem; opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Lotes Activos</h6>
+                            <h2>{{ stats.lotes_activos }}</h2>
+                        </div>
+                        <i class="bi bi-box-seam" style="font-size: 3rem; opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Ventas Hoy</h6>
+                            <h2>{{ stats.ventas_hoy }}</h2>
+                        </div>
+                        <i class="bi bi-cart-check" style="font-size: 3rem; opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-title">Por Caducar</h6>
+                            <h2>{{ stats.lotes_por_caducar }}</h2>
+                        </div>
+                        <i class="bi bi-exclamation-triangle" style="font-size: 3rem; opacity: 0.5;"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-lightning"></i> Acciones Rápidas</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        {% if session.rol in ['gerente', 'farmaceutico'] %}
+                        <a href="{{ url_for('registrar_venta') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-cart-plus"></i> Registrar Venta
+                        </a>
+                        <a href="{{ url_for('nuevo_lote') }}" class="btn btn-outline-success">
+                            <i class="bi bi-plus-circle"></i> Nuevo Lote
+                        </a>
+                        {% endif %}
+                        <a href="{{ url_for('inventario') }}" class="btn btn-outline-info">
+                            <i class="bi bi-search"></i> Ver Inventario
+                        </a>
+                        {% if session.rol in ['gerente', 'investigador'] %}
+                        <a href="{{ url_for('nuevo_ensayo') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-clipboard-plus"></i> Nuevo Ensayo Clínico
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-info-circle"></i> Información del Sistema</h5>
+                </div>
+                <div class="card-body">
+                    <h6>Usuario Actual</h6>
+                    <p><strong>{{ user.nombre_completo }}</strong></p>
+                    <p>
+                        <span class="badge bg-secondary">{{ user.rol|upper }}</span>
+                        <span class="badge bg-success">{{ user.email }}</span>
+                    </p>
+
+                    <hr>
+
+                    <h6>Permisos del Rol</h6>
+                    <ul class="list-unstyled">
+                        {% if session.rol == 'gerente' %}
+                        <li><i class="bi bi-check-circle text-success"></i> Acceso total al sistema</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Gestión de usuarios</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Todas las transacciones</li>
+                        {% elif session.rol == 'farmaceutico' %}
+                        <li><i class="bi bi-check-circle text-success"></i> Registrar ventas</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Modificar lotes</li>
+                        <li><i class="bi bi-dash-circle text-muted"></i> Gestión limitada</li>
+                        {% elif session.rol == 'investigador' %}
+                        <li><i class="bi bi-check-circle text-success"></i> Consultar datos</li>
+                        <li><i class="bi bi-check-circle text-success"></i> Ensayos clínicos</li>
+                        <li><i class="bi bi-dash-circle text-muted"></i> Solo lectura en inventario</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

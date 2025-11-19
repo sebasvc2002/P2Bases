@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ensayo.titulo }} - PharmaFlow Solutions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="mb-4">
+        <a href="{{ url_for('ensayos_clinicos') }}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header {% if ensayo.estado == 'completado' %}bg-success{% elif ensayo.estado == 'suspendido' %}bg-danger{% else %}bg-primary{% endif %} text-white">
+            <h2 class="mb-0">{{ ensayo.titulo }}</h2>
+            <p class="mb-0">{{ ensayo.fase }} -
+                {% if ensayo.estado == 'en_progreso' %}En Progreso
+                {% elif ensayo.estado == 'completado' %}Completado
+                {% else %}Suspendido{% endif %}
+            </p>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Información General</h5>
+                    <p><strong>Medicamento:</strong> {{ medicamento.nombre if medicamento else 'N/A' }}</p>
+                    <p><strong>Investigador Principal:</strong> {{ ensayo.investigador_principal }}</p>
+                    <p><strong>Fecha de Inicio:</strong> {{ ensayo.fecha_inicio.strftime('%Y-%m-%d') }}</p>
+                    {% if ensayo.fecha_fin %}
+                    <p><strong>Fecha de Fin:</strong> {{ ensayo.fecha_fin.strftime('%Y-%m-%d') }}</p>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <h5>Participantes</h5>
+                    {% if ensayo.participantes %}
+                    <p><strong>Total:</strong> {{ ensayo.participantes.get('total', 0) }}</p>
+                    <p><strong>Completados:</strong> {{ ensayo.participantes.get('completados', 0) }}</p>
+                    <div class="progress">
+                        {% set porcentaje = (ensayo.participantes.get('completados', 0) / ensayo.participantes.get('total', 1) * 100) if ensayo.participantes.get('total', 0) > 0 else 0 %}
+                        <div class="progress-bar" role="progressbar" style="width: {{ porcentaje }}%"
+                             aria-valuenow="{{ porcentaje }}" aria-valuemin="0" aria-valuemax="100">
+                            {{ "%.1f"|format(porcentaje) }}%
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No hay información de participantes</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Efectos Secundarios</h5>
+                </div>
+                <div class="card-body">
+                    {% if ensayo.efectos_secundarios %}
+                    <div class="list-group">
+                        {% for efecto in ensayo.efectos_secundarios %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-1">{{ efecto.descripcion }}</h6>
+                                <span class="badge {% if efecto.severidad == 'severa' %}bg-danger{% elif efecto.severidad == 'moderada' %}bg-warning{% else %}bg-info{% endif %}">
+                                    {{ efecto.severidad }}
+                                </span>
+                            </div>
+                            <small class="text-muted">
+                                Frecuencia: {{ efecto.frecuencia }} |
+                                Reportado: {{ efecto.fecha_reporte.strftime('%Y-%m-%d') }}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No se han reportado efectos secundarios</p>
+                    {% endif %}
+
+                    {% if session.rol in ['gerente', 'investigador'] %}
+                    <hr>
+                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#agregarEfectoModal">
+                        <i class="bi bi-plus-circle"></i> Agregar Efecto Secundario
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="bi bi-journal-text"></i> Notas de Investigación</h5>
+                </div>
+                <div class="card-body">
+                    {% if ensayo.notas_investigacion %}
+                    <div class="list-group">
+                        {% for nota in ensayo.notas_investigacion %}
+                        <div class="list-group-item">
+                            <p class="mb-1">{{ nota.texto }}</p>
+                            <small class="text-muted">
+                                Por {{ nota.autor }} | {{ nota.fecha.strftime('%Y-%m-%d %H:%M') }}
+                                {% if nota.categoria %} | <span class="badge bg-secondary">{{ nota.categoria }}</span>{% endif %}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No hay notas de investigación</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if ensayo.resultados %}
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="bi bi-graph-up"></i> Resultados</h5>
+        </div>
+        <div class="card-body">
+            <pre class="bg-light p-3">{{ ensayo.resultados|tojson(indent=2) }}</pre>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if ensayo.datos_adicionales %}
+    <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0"><i class="bi bi-info-circle"></i> Datos Adicionales</h5>
+        </div>
+        <div class="card-body">
+            <pre class="bg-light p-3">{{ ensayo.datos_adicionales|tojson(indent=2) }}</pre>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Modal para agregar efecto secundario -->
+<div class="modal fade" id="agregarEfectoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('agregar_efecto_secundario', ensayo_id=ensayo._id) }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Efecto Secundario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción *</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="severidad" class="form-label">Severidad *</label>
+                        <select class="form-select" id="severidad" name="severidad" required>
+                            <option value="leve">Leve</option>
+                            <option value="moderada">Moderada</option>
+                            <option value="severa">Severa</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="frecuencia" class="form-label">Frecuencia *</label>
+                        <select class="form-select" id="frecuencia" name="frecuencia" required>
+                            <option value="rara">Rara (&lt;1%)</option>
+                            <option value="poco_frecuente">Poco Frecuente (1-10%)</option>
+                            <option value="frecuente">Frecuente (10-50%)</option>
+                            <option value="muy_frecuente">Muy Frecuente (&gt;50%)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

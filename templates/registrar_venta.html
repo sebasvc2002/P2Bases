@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar Venta - PharmaFlow Solutions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-cart-plus"></i> Registrar Venta</h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Control de Concurrencia:</strong> Este sistema implementa control de concurrencia
+                        optimista para evitar conflictos cuando múltiples usuarios venden del mismo lote simultáneamente.
+                    </div>
+
+                    <form method="POST" action="{{ url_for('registrar_venta') }}" id="ventaForm">
+                        <div class="mb-3">
+                            <label for="lote_id" class="form-label">Seleccione el Lote *</label>
+                            <select class="form-select" id="lote_id" name="lote_id" required>
+                                <option value="">Seleccione un lote...</option>
+                                {% for item in inventario %}
+                                <option value="{{ item.lote_id }}"
+                                        data-cantidad="{{ item.cantidad_actual }}"
+                                        data-precio="{{ item.precio_unitario }}"
+                                        data-medicamento="{{ item.medicamento }}">
+                                    {{ item.medicamento }} - Lote: {{ item.numero_lote }}
+                                    (Disponible: {{ item.cantidad_actual }}) - ${{ "%.2f"|format(item.precio_unitario) }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="cantidad" class="form-label">Cantidad *</label>
+                            <input type="number" class="form-control" id="cantidad" name="cantidad"
+                                   min="1" required>
+                            <small class="text-muted">Cantidad disponible: <span id="cantidadDisponible">-</span></small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Método de Control de Concurrencia</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="metodo_concurrencia"
+                                       id="optimista" value="optimista" checked>
+                                <label class="form-check-label" for="optimista">
+                                    <strong>Optimista</strong> - Verifica conflictos al momento de la transacción
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="metodo_concurrencia"
+                                       id="pesimista" value="pesimista">
+                                <label class="form-check-label" for="pesimista">
+                                    <strong>Pesimista</strong> - Bloquea el registro durante la transacción
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="card bg-light mb-3">
+                            <div class="card-body">
+                                <h5>Resumen de la Venta</h5>
+                                <p><strong>Medicamento:</strong> <span id="resumenMedicamento">-</span></p>
+                                <p><strong>Cantidad:</strong> <span id="resumenCantidad">0</span> unidades</p>
+                                <p><strong>Precio Unitario:</strong> $<span id="resumenPrecioUnitario">0.00</span></p>
+                                <hr>
+                                <h4><strong>Total:</strong> $<span id="resumenTotal">0.00</span></h4>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('transacciones') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Confirmar Venta
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const loteSelect = document.getElementById('lote_id');
+    const cantidadInput = document.getElementById('cantidad');
+    const cantidadDisponible = document.getElementById('cantidadDisponible');
+    const resumenMedicamento = document.getElementById('resumenMedicamento');
+    const resumenCantidad = document.getElementById('resumenCantidad');
+    const resumenPrecioUnitario = document.getElementById('resumenPrecioUnitario');
+    const resumenTotal = document.getElementById('resumenTotal');
+
+    let precioUnitario = 0;
+
+    loteSelect.addEventListener('change', function() {
+        const option = this.options[this.selectedIndex];
+        if (option.value) {
+            const cantidad = option.dataset.cantidad;
+            precioUnitario = parseFloat(option.dataset.precio);
+            const medicamento = option.dataset.medicamento;
+
+            cantidadDisponible.textContent = cantidad + ' unidades';
+            cantidadInput.max = cantidad;
+            resumenMedicamento.textContent = medicamento;
+            resumenPrecioUnitario.textContent = precioUnitario.toFixed(2);
+
+            calcularTotal();
+        }
+    });
+
+    cantidadInput.addEventListener('input', calcularTotal);
+
+    function calcularTotal() {
+        const cantidad = parseInt(cantidadInput.value) || 0;
+        resumenCantidad.textContent = cantidad;
+        const total = cantidad * precioUnitario;
+        resumenTotal.textContent = total.toFixed(2);
+    }
+});
+</script>
+{% endblock %}
+

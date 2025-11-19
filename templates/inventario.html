@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Inventario - PharmaFlow Solutions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-box-seam"></i> Inventario</h1>
+        {% if session.rol in ['gerente', 'farmaceutico'] %}
+        <a href="{{ url_for('nuevo_lote') }}" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Nuevo Lote
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Medicamento</th>
+                            <th>Principio Activo</th>
+                            <th>Número de Lote</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                            <th>Fecha Caducidad</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in inventario %}
+                        <tr>
+                            <td><strong>{{ item.medicamento }}</strong></td>
+                            <td>{{ item.principio_activo }}</td>
+                            <td><code>{{ item.numero_lote }}</code></td>
+                            <td>
+                                <span class="badge {% if item.cantidad_actual < 10 %}bg-danger{% elif item.cantidad_actual < 50 %}bg-warning{% else %}bg-success{% endif %}">
+                                    {{ item.cantidad_actual }} unidades
+                                </span>
+                            </td>
+                            <td>${{ "%.2f"|format(item.precio_unitario) }}</td>
+                            <td>{{ item.fecha_caducidad.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                {% if item.estado_caducidad == 'caducado' %}
+                                    <span class="badge bg-danger">Caducado</span>
+                                {% elif item.estado_caducidad == 'proximo_a_caducar' %}
+                                    <span class="badge bg-warning">Por Caducar</span>
+                                {% else %}
+                                    <span class="badge bg-success">Vigente</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if session.rol in ['gerente', 'farmaceutico'] %}
+                                <a href="{{ url_for('registrar_venta') }}?lote_id={{ item.lote_id }}"
+                                   class="btn btn-sm btn-primary" title="Vender">
+                                    <i class="bi bi-cart"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">No hay lotes en inventario</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
