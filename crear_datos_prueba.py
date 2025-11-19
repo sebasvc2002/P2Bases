@@ -228,10 +228,8 @@ def crear_datos_prueba():
         except Exception as e:
             print(f"ℹ Error creando ensayo: {str(e)}")
 
-    print("\n" + "="*50)
-    print("✅ Datos de prueba creados exitosamente!")
-    print("="*50)
-    print("\nPuedes acceder con:")
+    print("Datos de prueba creados exitosamente!")
+    print("\nCredenciales:")
     print("  - admin / admin123 (Gerente)")
     print("  - farmacia1 / farmacia123 (Farmacéutico)")
     print("  - investigador1 / invest123 (Investigador)")
