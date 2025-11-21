@@ -151,6 +151,49 @@ JOIN lotes_medicamentos l ON m.id = l.medicamento_id
 WHERE l.cantidad_actual > 0
 ORDER BY l.fecha_caducidad;
 
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO gerente;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO gerente;
+
+-- Privilegios para el rol farmacéutico (registrar ventas y modificar lotes)
+GRANT SELECT ON
+    medicamentos,
+    lotes_medicamentos,
+    transacciones,
+    compuestos_quimicos,
+    interacciones_medicamentos,
+    vista_inventario
+TO farmaceutico;
+GRANT INSERT, UPDATE ON transacciones     TO farmaceutico;
+GRANT UPDATE        ON lotes_medicamentos TO farmaceutico;
+GRANT USAGE ON SEQUENCE lotes_medicamentos_id_seq TO farmaceutico;
+GRANT USAGE ON SEQUENCE transacciones_id_seq      TO farmaceutico;
+REVOKE ALL PRIVILEGES ON TABLE usuarios FROM farmaceutico;
+
+-- Privilegios para el rol investigador (solo consulta)
+GRANT SELECT ON
+    medicamentos,
+    lotes_medicamentos,
+    transacciones,
+    vista_inventario,
+    compuestos_quimicos,
+    interacciones_medicamentos
+TO investigador;
+
+-- Logins para conectarse a la BD (cambia las contraseñas)
+CREATE ROLE login_gerente
+    WITH LOGIN PASSWORD 'Gerente';
+
+CREATE ROLE login_farmaceutico
+    WITH LOGIN PASSWORD 'Farmaceutico';
+
+CREATE ROLE login_investigador
+    WITH LOGIN PASSWORD 'Investigador';
+
+-- Hacer que los logins hereden los permisos de los roles de grupo
+GRANT gerente      TO login_gerente;
+GRANT farmaceutico TO login_farmaceutico;
+GRANT investigador TO login_investigador;
+
 -- Insertar usuario administrador por defecto (password: admin123)
 INSERT INTO usuarios (username, password_hash, nombre_completo, email, rol)
 VALUES ('admin', '$2b$12$aOfCg/aARMj7P1yFWYuMk.qfr.TEwFlX9E4fWbebhC0/SJ8d2sr5u', 'Administrador', 'admin@pharmaflow.com', 'gerente');
