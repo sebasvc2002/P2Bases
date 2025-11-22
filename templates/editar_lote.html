@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Lote - PharmaFlow Solutions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="mb-0"><i class="bi bi-pencil"></i> Editar Lote de Medicamento</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Medicamento</label>
+                            <input type="text" class="form-control" value="{{ lote.medicamento_nombre }}" disabled>
+                            <small class="text-muted">No se puede cambiar el medicamento de un lote existente</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="numero_lote" class="form-label">Número de Lote *</label>
+                            <input type="text" class="form-control" id="numero_lote" name="numero_lote"
+                                   value="{{ lote.numero_lote }}" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="cantidad_actual" class="form-label">Cantidad Actual *</label>
+                                    <input type="number" class="form-control" id="cantidad_actual"
+                                           name="cantidad_actual" value="{{ lote.cantidad_actual }}"
+                                           min="0" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="precio_unitario" class="form-label">Precio Unitario ($) *</label>
+                                    <input type="number" class="form-control" id="precio_unitario"
+                                           name="precio_unitario" value="{{ lote.precio_unitario }}"
+                                           step="0.01" min="0" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="fecha_fabricacion" class="form-label">Fecha de Fabricación *</label>
+                                    <input type="date" class="form-control" id="fecha_fabricacion"
+                                           name="fecha_fabricacion"
+                                           value="{{ lote.fecha_fabricacion.strftime('%Y-%m-%d') }}" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="fecha_caducidad" class="form-label">Fecha de Caducidad *</label>
+                                    <input type="date" class="form-control" id="fecha_caducidad"
+                                           name="fecha_caducidad"
+                                           value="{{ lote.fecha_caducidad.strftime('%Y-%m-%d') }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="proveedor" class="form-label">Proveedor</label>
+                            <input type="text" class="form-control" id="proveedor" name="proveedor"
+                                   value="{{ lote.proveedor or '' }}">
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Nota:</strong> Modificar la cantidad actual afectará el inventario.
+                            Use esta opción con precaución.
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('inventario') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

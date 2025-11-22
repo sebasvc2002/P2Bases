@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Usuario - PharmaFlow Solutions{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="mb-0"><i class="bi bi-pencil"></i> Editar Usuario</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre de Usuario</label>
+                            <input type="text" class="form-control" value="{{ usuario.username }}" disabled>
+                            <small class="text-muted">El nombre de usuario no se puede modificar</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="nombre_completo" class="form-label">Nombre Completo *</label>
+                            <input type="text" class="form-control" id="nombre_completo"
+                                   name="nombre_completo" value="{{ usuario.nombre_completo }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" name="email"
+                                   value="{{ usuario.email }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="rol" class="form-label">Rol *</label>
+                            <select class="form-select" id="rol" name="rol" required>
+                                <option value="gerente" {% if usuario.rol == 'gerente' %}selected{% endif %}>Gerente</option>
+                                <option value="farmaceutico" {% if usuario.rol == 'farmaceutico' %}selected{% endif %}>Farmacéutico</option>
+                                <option value="investigador" {% if usuario.rol == 'investigador' %}selected{% endif %}>Investigador</option>
+                            </select>
+                            <small class="text-muted">
+                                <strong>Gerente:</strong> Acceso total |
+                                <strong>Farmacéutico:</strong> Inventario y ventas |
+                                <strong>Investigador:</strong> Solo ensayos clínicos
+                            </small>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="activo"
+                                   name="activo" {% if usuario.activo %}checked{% endif %}>
+                            <label class="form-check-label" for="activo">
+                                Usuario Activo
+                            </label>
+                            <small class="d-block text-muted">Los usuarios inactivos no pueden iniciar sesión</small>
+                        </div>
+
+                        <hr>
+
+                        <div class="mb-3">
+                            <label for="nueva_password" class="form-label">Nueva Contraseña</label>
+                            <input type="password" class="form-control" id="nueva_password"
+                                   name="nueva_password" placeholder="Dejar en blanco para mantener la actual">
+                            <small class="text-muted">Solo ingrese una contraseña si desea cambiarla</small>
+                        </div>
+
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Advertencia:</strong> Los cambios en el rol afectarán los permisos del usuario inmediatamente.
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('usuarios') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-warning">
+                                <i class="bi bi-save"></i> Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

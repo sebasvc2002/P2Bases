@@ -84,6 +84,36 @@ class Usuario:
                 })
             return usuarios
 
+    @staticmethod
+    def actualizar(user_id, nombre_completo, email, rol, activo):
+        """Actualizar usuario existente (sin cambiar password)"""
+        with get_db_cursor() as cursor:
+            cursor.execute(
+                """UPDATE usuarios 
+                   SET nombre_completo = %s, email = %s, rol = %s, activo = %s
+                   WHERE id = %s""",
+                (nombre_completo, email, rol, activo, user_id)
+            )
+            return cursor.rowcount > 0
+
+    @staticmethod
+    def actualizar_password(user_id, nueva_password):
+        """Actualizar solo el password de un usuario"""
+        password_hash = bcrypt.hashpw(nueva_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        with get_db_cursor() as cursor:
+            cursor.execute(
+                """UPDATE usuarios SET password_hash = %s WHERE id = %s""",
+                (password_hash, user_id)
+            )
+            return cursor.rowcount > 0
+
+    @staticmethod
+    def eliminar(user_id):
+        """Eliminar usuario"""
+        with get_db_cursor() as cursor:
+            cursor.execute("DELETE FROM usuarios WHERE id = %s", (user_id,))
+            return cursor.rowcount > 0
+
 class Sesion:
     """Manejo de sesiones en MongoDB (clave-valor para acceso rápido)"""
 

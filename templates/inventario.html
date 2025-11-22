@@ -53,10 +53,25 @@
                             </td>
                             <td>
                                 {% if session.rol in ['gerente', 'farmaceutico'] %}
-                                <a href="{{ url_for('registrar_venta') }}?lote_id={{ item.lote_id }}"
-                                   class="btn btn-sm btn-primary" title="Vender">
-                                    <i class="bi bi-cart"></i>
-                                </a>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('registrar_venta') }}?lote_id={{ item.lote_id }}"
+                                       class="btn btn-sm btn-primary" title="Vender">
+                                        <i class="bi bi-cart"></i>
+                                    </a>
+                                    <a href="{{ url_for('editar_lote', lote_id=item.lote_id) }}"
+                                       class="btn btn-sm btn-warning" title="Editar">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    {% if session.rol == 'gerente' %}
+                                    <form method="POST" action="{{ url_for('eliminar_lote', lote_id=item.lote_id) }}"
+                                          style="display: inline;"
+                                          onsubmit="return confirm('¿Está seguro de eliminar este lote?');">
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
                                 {% endif %}
                             </td>
                         </tr>

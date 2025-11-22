@@ -143,6 +143,43 @@ def nuevo_medicamento():
 
     return render_template('nuevo_medicamento.html')
 
+@app.route('/medicamentos/<int:medicamento_id>/editar', methods=['GET', 'POST'])
+@role_required('gerente', 'farmaceutico')
+def editar_medicamento(medicamento_id):
+    medicamento = Medicamento.obtener_por_id(medicamento_id)
+    if not medicamento:
+        flash('Medicamento no encontrado', 'danger')
+        return redirect(url_for('medicamentos'))
+
+    if request.method == 'POST':
+        try:
+            Medicamento.actualizar(
+                medicamento_id=medicamento_id,
+                nombre=request.form.get('nombre'),
+                descripcion=request.form.get('descripcion'),
+                principio_activo=request.form.get('principio_activo'),
+                categoria=request.form.get('categoria'),
+                requiere_receta=request.form.get('requiere_receta') == 'on'
+            )
+            flash('Medicamento actualizado exitosamente', 'success')
+            return redirect(url_for('medicamentos'))
+        except Exception as e:
+            flash(f'Error al actualizar medicamento: {str(e)}', 'danger')
+
+    return render_template('editar_medicamento.html', medicamento=medicamento)
+
+@app.route('/medicamentos/<int:medicamento_id>/eliminar', methods=['POST'])
+@role_required('gerente')
+def eliminar_medicamento(medicamento_id):
+    try:
+        if Medicamento.eliminar(medicamento_id):
+            flash('Medicamento eliminado exitosamente', 'success')
+        else:
+            flash('No se pudo eliminar el medicamento. Puede tener lotes asociados.', 'warning')
+    except Exception as e:
+        flash(f'Error al eliminar medicamento: {str(e)}', 'danger')
+    return redirect(url_for('medicamentos'))
+
 @app.route('/lotes/nuevo', methods=['GET', 'POST'])
 @role_required('gerente', 'farmaceutico')
 def nuevo_lote():
@@ -164,6 +201,45 @@ def nuevo_lote():
 
     medicamentos = Medicamento.listar()
     return render_template('nuevo_lote.html', medicamentos=medicamentos)
+
+@app.route('/lotes/<int:lote_id>/editar', methods=['GET', 'POST'])
+@role_required('gerente', 'farmaceutico')
+def editar_lote(lote_id):
+    lote = LoteMedicamento.obtener_por_id(lote_id)
+    if not lote:
+        flash('Lote no encontrado', 'danger')
+        return redirect(url_for('inventario'))
+
+    if request.method == 'POST':
+        try:
+            LoteMedicamento.actualizar(
+                lote_id=lote_id,
+                numero_lote=request.form.get('numero_lote'),
+                cantidad_actual=int(request.form.get('cantidad_actual')),
+                precio_unitario=float(request.form.get('precio_unitario')),
+                fecha_fabricacion=request.form.get('fecha_fabricacion'),
+                fecha_caducidad=request.form.get('fecha_caducidad'),
+                proveedor=request.form.get('proveedor')
+            )
+            flash('Lote actualizado exitosamente', 'success')
+            return redirect(url_for('inventario'))
+        except Exception as e:
+            flash(f'Error al actualizar lote: {str(e)}', 'danger')
+
+    medicamentos = Medicamento.listar()
+    return render_template('editar_lote.html', lote=lote, medicamentos=medicamentos)
+
+@app.route('/lotes/<int:lote_id>/eliminar', methods=['POST'])
+@role_required('gerente')
+def eliminar_lote(lote_id):
+    try:
+        if LoteMedicamento.eliminar(lote_id):
+            flash('Lote eliminado exitosamente', 'success')
+        else:
+            flash('No se pudo eliminar el lote. Puede tener transacciones asociadas.', 'warning')
+    except Exception as e:
+        flash(f'Error al eliminar lote: {str(e)}', 'danger')
+    return redirect(url_for('inventario'))
 
 # Rutas de Transacciones (con control de concurrencia)
 @app.route('/transacciones')
@@ -307,6 +383,53 @@ def nuevo_usuario():
             flash(f'Error al crear usuario: {str(e)}', 'danger')
 
     return render_template('nuevo_usuario.html')
+
+@app.route('/usuarios/<int:user_id>/editar', methods=['GET', 'POST'])
+@role_required('gerente')
+def editar_usuario(user_id):
+    usuario = Usuario.obtener_por_id(user_id)
+    if not usuario:
+        flash('Usuario no encontrado', 'danger')
+        return redirect(url_for('usuarios'))
+
+    if request.method == 'POST':
+        try:
+            Usuario.actualizar(
+                user_id=user_id,
+                nombre_completo=request.form.get('nombre_completo'),
+                email=request.form.get('email'),
+                rol=request.form.get('rol'),
+                activo=request.form.get('activo') == 'on'
+            )
+            
+            # Si se proporciona nueva contraseña, actualizarla
+            nueva_password = request.form.get('nueva_password')
+            if nueva_password and nueva_password.strip():
+                Usuario.actualizar_password(user_id, nueva_password)
+            
+            flash('Usuario actualizado exitosamente', 'success')
+            return redirect(url_for('usuarios'))
+        except Exception as e:
+            flash(f'Error al actualizar usuario: {str(e)}', 'danger')
+
+    return render_template('editar_usuario.html', usuario=usuario)
+
+@app.route('/usuarios/<int:user_id>/eliminar', methods=['POST'])
+@role_required('gerente')
+def eliminar_usuario(user_id):
+    # No permitir que un usuario se elimine a sí mismo
+    if user_id == session['user_id']:
+        flash('No puedes eliminar tu propio usuario', 'warning')
+        return redirect(url_for('usuarios'))
+    
+    try:
+        if Usuario.eliminar(user_id):
+            flash('Usuario eliminado exitosamente', 'success')
+        else:
+            flash('No se pudo eliminar el usuario', 'warning')
+    except Exception as e:
+        flash(f'Error al eliminar usuario: {str(e)}', 'danger')
+    return redirect(url_for('usuarios'))
 
 # API endpoints
 @app.route('/api/lote/<int:lote_id>')

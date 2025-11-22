@@ -35,6 +35,25 @@
                         {% endif %}
                     </p>
                 </div>
+                {% if session.rol in ['gerente', 'farmaceutico'] %}
+                <div class="card-footer bg-light">
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('editar_medicamento', medicamento_id=medicamento.id) }}"
+                           class="btn btn-sm btn-warning">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        {% if session.rol == 'gerente' %}
+                        <form method="POST" action="{{ url_for('eliminar_medicamento', medicamento_id=medicamento.id) }}"
+                              style="display: inline;"
+                              onsubmit="return confirm('¿Está seguro de eliminar este medicamento?');">
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="bi bi-trash"></i> Eliminar
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
         {% else %}

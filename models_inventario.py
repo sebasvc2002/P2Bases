@@ -57,6 +57,26 @@ class Medicamento:
                 }
         return None
 
+    @staticmethod
+    def actualizar(medicamento_id, nombre, descripcion, principio_activo, categoria, requiere_receta):
+        """Actualizar medicamento existente"""
+        with get_db_cursor() as cursor:
+            cursor.execute(
+                """UPDATE medicamentos 
+                   SET nombre = %s, descripcion = %s, principio_activo = %s, 
+                       categoria = %s, requiere_receta = %s
+                   WHERE id = %s""",
+                (nombre, descripcion, principio_activo, categoria, requiere_receta, medicamento_id)
+            )
+            return cursor.rowcount > 0
+
+    @staticmethod
+    def eliminar(medicamento_id):
+        """Eliminar medicamento (solo si no tiene lotes asociados)"""
+        with get_db_cursor() as cursor:
+            cursor.execute("DELETE FROM medicamentos WHERE id = %s", (medicamento_id,))
+            return cursor.rowcount > 0
+
 class LoteMedicamento:
     """Modelo para lotes de medicamentos con control de concurrencia"""
 
@@ -172,6 +192,28 @@ class LoteMedicamento:
                 )
                 return True
         return False
+
+    @staticmethod
+    def actualizar(lote_id, numero_lote, cantidad_actual, precio_unitario, fecha_fabricacion, fecha_caducidad, proveedor):
+        """Actualizar lote de medicamento"""
+        with get_db_cursor() as cursor:
+            cursor.execute(
+                """UPDATE lotes_medicamentos 
+                   SET numero_lote = %s, cantidad_actual = %s, precio_unitario = %s,
+                       fecha_fabricacion = %s, fecha_caducidad = %s, proveedor = %s,
+                       version = version + 1
+                   WHERE id = %s""",
+                (numero_lote, cantidad_actual, precio_unitario, fecha_fabricacion,
+                 fecha_caducidad, proveedor, lote_id)
+            )
+            return cursor.rowcount > 0
+
+    @staticmethod
+    def eliminar(lote_id):
+        """Eliminar lote (solo si no tiene transacciones)"""
+        with get_db_cursor() as cursor:
+            cursor.execute("DELETE FROM lotes_medicamentos WHERE id = %s", (lote_id,))
+            return cursor.rowcount > 0
 
 class Transaccion:
     """Modelo para transacciones de compra/venta"""

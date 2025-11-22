@@ -58,25 +58,24 @@
                 </div>
                 <div class="card-body">
                     {% if ensayo.efectos_secundarios %}
-                    <div class="list-group">
-                        {% for efecto in ensayo.efectos_secundarios %}
-                        <div class="list-group-item">
-                            <div class="d-flex justify-content-between">
-                                <h6 class="mb-1">{{ efecto.descripcion }}</h6>
-                                <span class="badge {% if efecto.severidad == 'severa' %}bg-danger{% elif efecto.severidad == 'moderada' %}bg-warning{% else %}bg-info{% endif %}">
-                                    {{ efecto.severidad }}
-                                </span>
-                            </div>
-                            <small class="text-muted">
-                                Frecuencia: {{ efecto.frecuencia }} |
-                                Reportado: {{ efecto.fecha_reporte.strftime('%Y-%m-%d') }}
-                            </small>
-                        </div>
-                        {% endfor %}
+            <div class="list-group">
+                {% for efecto in ensayo.efectos_secundarios %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between">
+                        <h6 class="mb-1">{{ efecto.descripcion }}</h6>
+                        <span class="badge {% if efecto.severidad == 'severa' %}bg-danger{% elif efecto.severidad == 'moderada' %}bg-warning{% else %}bg-info{% endif %}">
+                            {{ efecto.severidad }}
+                        </span>
                     </div>
-                    {% else %}
-                    <p class="text-muted">No se han reportado efectos secundarios</p>
-                    {% endif %}
+                    <small class="text-muted">
+                        Frecuencia: {{ efecto.frecuencia }}
+                    </small>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted">No se han reportado efectos secundarios</p>
+            {% endif %}
 
                     {% if session.rol in ['gerente', 'investigador'] %}
                     <hr>
@@ -100,7 +99,7 @@
                         <div class="list-group-item">
                             <p class="mb-1">{{ nota.texto }}</p>
                             <small class="text-muted">
-                                Por {{ nota.autor }} | {{ nota.fecha.strftime('%Y-%m-%d %H:%M') }}
+                                Por {{ nota.autor }}
                                 {% if nota.categoria %} | <span class="badge bg-secondary">{{ nota.categoria }}</span>{% endif %}
                             </small>
                         </div>
